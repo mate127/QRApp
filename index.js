@@ -5,8 +5,11 @@ const axios = require('axios');
 const { Pool } = require('pg');
 
 const app = express();
-const port = 3000;
 app.use(express.json());
+
+const externalUrl = process.env.RENDER_EXTERNAL_URL;
+const port = externalUrl && process.env.PORT ? parseInt(process.env.PORT) : 3000;
+const baseURL = externalUrl || `https://localhost:${port}`;
 
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
@@ -80,7 +83,7 @@ app.post('/generate-ticket',checkAuth, async (req, res) => {
         const insertResult = await pool.query(insertQuery, [vatin, firstName, lastName]);
         const ticketId = insertResult.rows[0].id;
 
-        const ticketUrl = `http://localhost:3000/ticket/${ticketId}`;
+        const ticketUrl = `${baseURL}/ticket/${ticketId}`;
 
         const qrCode = await QRCode.toDataURL(ticketUrl);
         res.json({ message: 'Ticket created', ticketUrl, qrCode });
@@ -132,5 +135,5 @@ const cors = require('cors');
 app.use(cors());
 
 app.listen(port, () => {
-    console.log(`App running at http://localhost:${port}`);
+    console.log(`App running at ${baseURL}:${port}`);
 });
