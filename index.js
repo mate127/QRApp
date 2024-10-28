@@ -8,7 +8,7 @@ const app = express();
 app.use(express.json());
 
 const externalUrl = process.env.RENDER_EXTERNAL_URL;
-const port = externalUrl && process.env.PORT ? parseInt(process.env.PORT) : 10000;
+const port = process.env.PORT ? process.env.PORT : 10000;
 const baseURL = externalUrl || `https://localhost:${port}`;
 
 const pool = new Pool({
